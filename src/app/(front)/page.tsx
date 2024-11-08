@@ -1,9 +1,14 @@
-import { HydrateClient } from "~/trpc/server";
+import { Metadata } from "next";
 
-export default async function Home() {
+export const metadata: Metadata = {
+  title: "Tick Apps",
+  description: "Ticketing Apps",
+};
+
+export default function Home() {
   return (
-    <HydrateClient>
-      <p>sgdg</p>
-    </HydrateClient>
+    <main>
+      <p>asdhhsd</p>
+    </main>
   );
 }

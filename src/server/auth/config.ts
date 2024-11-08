@@ -1,7 +1,10 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { Role } from "@prisma/client";
+import { compare } from "bcrypt";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
+import { JWT } from "next-auth/jwt";
+import CredentialsProvider from "next-auth/providers/credentials";
 
+import { env } from "~/env";
 import { db } from "~/server/db";
 
 /**
@@ -13,16 +16,19 @@ import { db } from "~/server/db";
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
-      id: string;
+      id: number;
+      username: string;
+      email: string;
+      role: Role;
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    username: string;
+    role: Role;
+  }
 }
 
 /**
@@ -32,25 +38,61 @@ declare module "next-auth" {
  */
 export const authConfig = {
   providers: [
-    DiscordProvider,
-    /**
-     * ...add more providers here.
-     *
-     * Most other providers require a bit more work than the Discord provider. For example, the
-     * GitHub provider requires you to add the `refresh_token_expires_in` field to the Account
-     * model. Refer to the NextAuth.js docs for the provider you want to use. Example:
-     *
-     * @see https://next-auth.js.org/providers/github
-     */
-  ],
-  adapter: PrismaAdapter(db),
-  callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
+    CredentialsProvider({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Invalid credentials");
+        }
+
+        const user = await db.user.findUnique({
+          where: { email: credentials?.email as string },
+          include: { role: true },
+        });
+
+        if (!user) {
+          throw new Error("Invalid credentials");
+        }
+
+        const passwordMatch = compare(
+          credentials.password as string,
+          user.password,
+        );
+
+        if (!passwordMatch) {
+          throw new Error("Incorrect password");
+        }
+
+        return {
+          id: String(user.id),
+          username: user.username,
+          email: user.email,
+          role: user.role,
+        };
       },
     }),
+  ],
+  secret: env.AUTH_SECRET,
+  callbacks: {
+    session: ({ session, token }) => {
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          ...token,
+        },
+      };
+    },
+    jwt: ({ token, user, session }): Promise<JWT> => {
+      return {
+        ...token,
+        ...user,
+        ...session,
+      };
+    },
   },
 } satisfies NextAuthConfig;
