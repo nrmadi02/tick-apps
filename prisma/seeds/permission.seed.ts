@@ -13,20 +13,44 @@ export async function seedPermissions() {
     // Permissions untuk User
     { action: "create", subjectName: "User", description: "Create a user" },
     { action: "read", subjectName: "User", description: "Read user details" },
-    { action: "update", subjectName: "User", description: "Update user information" },
+    {
+      action: "update",
+      subjectName: "User",
+      description: "Update user information",
+    },
     { action: "delete", subjectName: "User", description: "Delete a user" },
 
     // Permissions untuk Role
     { action: "create", subjectName: "Role", description: "Create a role" },
     { action: "read", subjectName: "Role", description: "Read role details" },
-    { action: "update", subjectName: "Role", description: "Update role information" },
+    {
+      action: "update",
+      subjectName: "Role",
+      description: "Update role information",
+    },
     { action: "delete", subjectName: "Role", description: "Delete a role" },
 
     // Permissions untuk Permission
-    { action: "create", subjectName: "Permission", description: "Create a permission" },
-    { action: "read", subjectName: "Permission", description: "Read permission details" },
-    { action: "update", subjectName: "Permission", description: "Update permission information" },
-    { action: "delete", subjectName: "Permission", description: "Delete a permission" },
+    {
+      action: "create",
+      subjectName: "Permission",
+      description: "Create a permission",
+    },
+    {
+      action: "read",
+      subjectName: "Permission",
+      description: "Read permission details",
+    },
+    {
+      action: "update",
+      subjectName: "Permission",
+      description: "Update permission information",
+    },
+    {
+      action: "delete",
+      subjectName: "Permission",
+      description: "Delete a permission",
+    },
     // Tambahkan Permissions lain sesuai kebutuhan
   ];
 
@@ -36,7 +60,9 @@ export async function seedPermissions() {
     });
 
     if (!subject) {
-      throw new Error(`Subject dengan nama '${perm.subjectName}' tidak ditemukan.`);
+      throw new Error(
+        `Subject dengan nama '${perm.subjectName}' tidak ditemukan.`,
+      );
     }
 
     await db.permission.upsert({
@@ -54,7 +80,7 @@ export async function seedPermissions() {
       },
     });
     console.log(
-      `Permission '${perm.action}' untuk Subject '${perm.subjectName}' telah dibuat atau ditemukan.`
+      `Permission '${perm.action}' untuk Subject '${perm.subjectName}' telah dibuat atau ditemukan.`,
     );
   }
 }

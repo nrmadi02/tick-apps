@@ -52,11 +52,11 @@ export async function seedRoles() {
         });
         if (!permission) {
           throw new Error(
-            `Permission '${perm.action}' untuk Subject '${perm.subjectName}' tidak ditemukan.`
+            `Permission '${perm.action}' untuk Subject '${perm.subjectName}' tidak ditemukan.`,
           );
         }
         return { id: permission.id };
-      })
+      }),
     );
 
     await db.role.upsert({

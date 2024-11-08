@@ -1,5 +1,3 @@
-
-
 import { db } from "~/server/db";
 
 import { seedPermissions } from "./seeds/permission.seed";
