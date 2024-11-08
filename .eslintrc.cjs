@@ -10,6 +10,7 @@ const config = {
   plugins: ["import"],
   rules: {
     "tailwindcss/no-custom-classname": "off",
+    "tailwindcss/classnames-order": "off",
     "import/order": [
       "error",
       {
