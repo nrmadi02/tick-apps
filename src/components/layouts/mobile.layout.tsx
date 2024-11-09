@@ -4,7 +4,10 @@ export default function MobileLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <main className="relative mx-auto min-h-screen max-w-lg overflow-auto md:border-x">
+    <main
+      vaul-drawer-wrapper="true"
+      className="relative mx-auto min-h-screen max-w-lg md:border-x"
+    >
       {children}
     </main>
   );

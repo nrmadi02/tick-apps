@@ -12,11 +12,11 @@ export default function RecommendationSection() {
       <div className="mt-5 flex flex-col gap-5">
         {Array.from({ length: 3 }).map((_, i) => (
           <Card key={i}>
-            <CardContent className="p-3">
+            <CardContent className="p-0">
               <div className="flex min-h-[200px] items-center justify-center rounded bg-neutral-100">
                 <p className="text-2xl font-bold text-neutral-800">Image</p>
               </div>
-              <div className="mt-2">
+              <div className="mt-2 p-3">
                 <h1 className="text-lg font-bold">Judul Konten</h1>
                 <p className="text-sm">
                   Lorem ipsum dolor sit amet consectetur adipisicing elit.

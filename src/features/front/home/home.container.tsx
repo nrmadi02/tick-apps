@@ -1,6 +1,7 @@
 import { BannerSection } from "./section/banner.section";
 import RecentSection from "./section/recent.section";
 import RecommendationSection from "./section/recommendation";
+import TutorialSection from "./section/tutorial.section";
 
 export default function HomeContainer() {
   return (
@@ -8,6 +9,7 @@ export default function HomeContainer() {
       <BannerSection />
       <RecommendationSection />
       <RecentSection />
+      <TutorialSection />
     </div>
   );
 }

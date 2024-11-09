@@ -36,17 +36,17 @@ export const BannerSection = () => {
       >
         <CarouselContent className="-ml-4">
           <CarouselItem className="pl-4">
-            <div className="flex min-h-[200px] items-center justify-center bg-neutral-100">
+            <div className="flex min-h-[200px] items-center justify-center rounded bg-neutral-100">
               <p className="text-2xl font-bold text-neutral-800">1</p>
             </div>
           </CarouselItem>
           <CarouselItem className="pl-4">
-            <div className="flex min-h-[200px] items-center justify-center bg-neutral-100">
+            <div className="flex min-h-[200px] items-center justify-center rounded bg-neutral-100">
               <p className="text-2xl font-bold text-neutral-800">2</p>
             </div>
           </CarouselItem>
           <CarouselItem className="pl-4">
-            <div className="flex min-h-[200px] items-center justify-center bg-neutral-100">
+            <div className="flex min-h-[200px] items-center justify-center rounded bg-neutral-100">
               <p className="text-2xl font-bold text-neutral-800">3</p>
             </div>
           </CarouselItem>
@@ -56,19 +56,19 @@ export const BannerSection = () => {
         <div className="flex items-center gap-2">
           <div
             className={cn(
-              "size-2 rounded-full bg-neutral-300 transition-all",
+              "size-2 rounded-full bg-primary transition-all",
               current === 1 && "w-4",
             )}
           />
           <div
             className={cn(
-              "size-2 rounded-full bg-neutral-300 transition-all",
+              "size-2 rounded-full bg-primary transition-all",
               current === 2 && "w-4",
             )}
           />
           <div
             className={cn(
-              "size-2 rounded-full bg-neutral-300 transition-all",
+              "size-2 rounded-full bg-primary transition-all",
               current === 3 && "w-4",
             )}
           />

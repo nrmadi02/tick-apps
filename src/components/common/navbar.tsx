@@ -1,44 +1,22 @@
 "use client";
 
-import { Menu } from "lucide-react";
-import { useState } from "react";
-
-import {
-  Sheet,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "~/components/ui/sheet";
-
+import ButtonProfile from "./button-profile";
+import ButtonSearch from "./button-search";
+import ButtonSidebar from "./button-sidebar";
 import { DarkModeToogle } from "./dark-mode-toggle";
-import { Button } from "../ui/button";
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false);
   return (
-    <nav className="flex items-center justify-between border-b px-5 py-4 shadow dark:border-gray-300 dark:shadow-white">
-      <p className="font-bold">Tick Apps</p>
-      <div>
-        <DarkModeToogle />
-        <Button onClick={() => setOpen(!open)} variant="ghost" size="icon">
-          <Menu />
-        </Button>
+    <nav className="sticky top-0 z-[100] flex items-center justify-between border-b bg-card px-5 py-4 shadow dark:border-gray-300">
+      <div className="flex items-center gap-2">
+        <ButtonSidebar />
+        <p className="font-bold">Tick Apps</p>
       </div>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle className="text-left text-2xl">Tick Apps</SheetTitle>
-          </SheetHeader>
-          <div className="mt-5">
-            <p>Content</p>
-          </div>
-          <SheetFooter className="mt-10 flex-col gap-2">
-            <Button>Login</Button>
-            <Button variant={"outline"}>Register</Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
+      <div className="flex">
+        <ButtonSearch />
+        <DarkModeToogle />
+        <ButtonProfile />
+      </div>
     </nav>
   );
 }
