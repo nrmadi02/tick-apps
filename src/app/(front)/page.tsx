@@ -1,14 +1,12 @@
 import { Metadata } from "next";
 
+import HomeContainer from "~/features/front/home/home.container";
+
 export const metadata: Metadata = {
   title: "Tick Apps",
   description: "Ticketing Apps",
 };
 
 export default function Home() {
-  return (
-    <div className="mt-5 px-5">
-      <p>asdhhsd</p>
-    </div>
-  );
+  return <HomeContainer />;
 }

@@ -17,9 +17,9 @@ import { Button } from "../ui/button";
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   return (
-    <nav className="flex items-center justify-between border-b px-5 py-4 shadow">
+    <nav className="flex items-center justify-between border-b px-5 py-4 shadow dark:border-gray-300 dark:shadow-white">
       <p className="font-bold">Tick Apps</p>
-      <div className="flex items-center gap-2">
+      <div>
         <DarkModeToogle />
         <Button onClick={() => setOpen(!open)} variant="ghost" size="icon">
           <Menu />
@@ -33,7 +33,7 @@ export default function Navbar() {
           <div className="mt-5">
             <p>Content</p>
           </div>
-          <SheetFooter className="mt-10">
+          <SheetFooter className="mt-10 flex-col gap-2">
             <Button>Login</Button>
             <Button variant={"outline"}>Register</Button>
           </SheetFooter>
