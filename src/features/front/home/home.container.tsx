@@ -1,4 +1,5 @@
 import { BannerSection } from "./section/banner.section";
+import RecentSection from "./section/recent.section";
 import RecommendationSection from "./section/recommendation";
 
 export default function HomeContainer() {
@@ -6,6 +7,7 @@ export default function HomeContainer() {
     <div className="mt-5">
       <BannerSection />
       <RecommendationSection />
+      <RecentSection />
     </div>
   );
 }

@@ -28,7 +28,7 @@ export default function Navbar() {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent>
           <SheetHeader>
-            <SheetTitle className="text-2xl">Tick Apps</SheetTitle>
+            <SheetTitle className="text-left text-2xl">Tick Apps</SheetTitle>
           </SheetHeader>
           <div className="mt-5">
             <p>Content</p>
