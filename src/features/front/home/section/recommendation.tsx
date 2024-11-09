@@ -37,8 +37,10 @@ export default function RecommendationSection() {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="flex items-center justify-between p-3">
-              <p className="text-md font-semibold">Mulai dari Rp100.000</p>
+            <CardFooter className="flex items-center justify-between gap-2 p-3">
+              <p className="break-words text-sm font-semibold">
+                Mulai dari Rp100.000
+              </p>
               <Button>Beli Sekarang</Button>
             </CardFooter>
           </Card>
