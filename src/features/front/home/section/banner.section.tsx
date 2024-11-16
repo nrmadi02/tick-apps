@@ -56,20 +56,20 @@ export const BannerSection = () => {
         <div className="flex items-center gap-2">
           <div
             className={cn(
-              "size-2 rounded-full bg-primary transition-all",
-              current === 1 && "w-4",
+              "size-2 rounded-full bg-purple-400 transition-all",
+              current === 1 && "w-4 bg-primary",
             )}
           />
           <div
             className={cn(
-              "size-2 rounded-full bg-primary transition-all",
-              current === 2 && "w-4",
+              "size-2 rounded-full bg-purple-400 transition-all",
+              current === 2 && "w-4 bg-primary",
             )}
           />
           <div
             className={cn(
-              "size-2 rounded-full bg-primary transition-all",
-              current === 3 && "w-4",
+              "size-2 rounded-full bg-purple-400 transition-all",
+              current === 3 && "w-4 bg-primary",
             )}
           />
         </div>

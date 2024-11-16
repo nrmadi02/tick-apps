@@ -1,6 +1,7 @@
 "use client";
 
 import { Building2, Calendar, Pin } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardFooter } from "~/components/ui/card";
@@ -15,7 +16,9 @@ export default function RecentSection() {
     <section className="pb-5">
       <div className="flex items-center justify-between gap-2 px-5">
         <p className="text-lg font-bold">Terbaru</p>
-        <p className="text-sm font-bold text-primary">Lihat Semua</p>
+        <Link href="/recents">
+          <p className="text-sm font-bold text-primary">Lihat Semua</p>
+        </Link>
       </div>
       <div className="mt-2">
         <Carousel opts={{ loop: true, dragFree: true, align: "center" }}>
