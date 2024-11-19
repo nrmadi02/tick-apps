@@ -1,5 +1,7 @@
 // eslint-disable-next-line import/order
 import { Menu } from "lucide-react";
+import Link from "next/link";
+
 import { Button } from "../ui/button";
 import {
   Sheet,
@@ -29,8 +31,12 @@ export default function ButtonSidebar() {
           <p>List Menu</p>
         </div>
         <SheetFooter className="mt-10 flex-col gap-2">
-          <Button>Login</Button>
-          <Button variant={"outline"}>Register</Button>
+          <Button asChild>
+            <Link href="/login">Login</Link>
+          </Button>
+          <Button variant={"outline"}>
+            <Link href="/register">Register</Link>
+          </Button>
         </SheetFooter>
       </SheetContent>
     </Sheet>
