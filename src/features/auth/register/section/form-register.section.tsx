@@ -40,7 +40,7 @@ export default function FormRegisterSection() {
     },
   });
 
-  const { mutate } = api.user.register.useMutation({
+  const { mutate, isPending } = api.user.register.useMutation({
     onSuccess: () => {
       toast.success("Register successful");
       router.replace("/login");
@@ -148,12 +148,8 @@ export default function FormRegisterSection() {
                     </FormItem>
                   )}
                 />
-                <Button
-                  type="submit"
-                  disabled={form.formState.isSubmitting}
-                  className="w-full"
-                >
-                  {form.formState.isSubmitting ? "Loading..." : "Register"}
+                <Button type="submit" disabled={isPending} className="w-full">
+                  {isPending ? "Loading..." : "Register"}
                 </Button>
               </div>
             </form>
