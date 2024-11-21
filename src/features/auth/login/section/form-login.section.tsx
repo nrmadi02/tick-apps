@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -29,9 +29,6 @@ import { LoginRequest, loginSchema } from "../types/login-request.type";
 
 export default function FormLoginSection() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const callback = searchParams.get("callbackUrl");
 
   const form = useForm<LoginRequest>({
     resolver: zodResolver(loginSchema),
@@ -42,29 +39,19 @@ export default function FormLoginSection() {
   });
 
   async function onSubmit(values: LoginRequest) {
-    const res = await signIn("credentials", {
+    const response = await signIn("credentials", {
       email: values.email,
       password: values.password,
       redirect: false,
     });
 
-    if (res?.ok === false) {
-      if (res.error?.includes("password")) {
-        form.setError("password", {
-          type: "manual",
-          message: "Invalid email or password",
-        });
-
-        toast.error("Invalid email or password");
-      }
-
-      return false;
+    if (response?.error) {
+      toast.error(response?.code);
+      return;
     }
 
     toast.success("Login successful");
-    router.replace(callback ?? "/");
-
-    return true;
+    router.replace("/");
   }
 
   return (

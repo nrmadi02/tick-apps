@@ -1,6 +1,10 @@
 import { Role } from "@prisma/client";
 import { compare } from "bcrypt";
-import { type DefaultSession, type NextAuthConfig } from "next-auth";
+import {
+  CredentialsSignin,
+  type DefaultSession,
+  type NextAuthConfig,
+} from "next-auth";
 import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 
@@ -32,6 +36,20 @@ declare module "next-auth" {
 }
 
 /**
+ * Custom error class for handling authentication errors.
+ *
+ * @see https://github.com/nextauthjs/next-auth/issues/9900
+ */
+class CustomError extends CredentialsSignin {
+  constructor(code: string) {
+    super();
+    this.code = code;
+    this.message = code;
+    this.stack = undefined;
+  }
+}
+
+/**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
  *
  * @see https://next-auth.js.org/configuration/options
@@ -46,7 +64,7 @@ export const authConfig = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Invalid credentials");
+          throw new CustomError("Invalid credentials");
         }
 
         const user = await db.user.findUnique({
@@ -55,16 +73,16 @@ export const authConfig = {
         });
 
         if (!user) {
-          throw new Error("Invalid credentials");
+          throw new CustomError("Invalid email or password");
         }
 
-        const passwordMatch = compare(
+        const passwordMatch = await compare(
           credentials.password as string,
           user.password,
         );
 
         if (!passwordMatch) {
-          throw new Error("Incorrect password");
+          throw new CustomError("Invalid email or password");
         }
 
         return {
@@ -94,5 +112,8 @@ export const authConfig = {
         ...session,
       };
     },
+  },
+  pages: {
+    signIn: "/login",
   },
 } satisfies NextAuthConfig;
