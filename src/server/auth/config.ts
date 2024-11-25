@@ -63,34 +63,39 @@ export const authConfig = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new CustomError("Invalid credentials");
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            throw new CustomError("Invalid credentials");
+          }
+
+          const user = await db.user.findUnique({
+            where: { email: credentials?.email as string },
+            include: { role: true },
+          });
+
+          if (!user) {
+            throw new CustomError("Invalid email or password");
+          }
+
+          const passwordMatch = await compare(
+            credentials.password as string,
+            user.password,
+          );
+
+          if (!passwordMatch) {
+            throw new CustomError("Invalid email or password");
+          }
+
+          return {
+            id: String(user.id),
+            username: user.username,
+            email: user.email,
+            role: user.role,
+          };
+        } catch (error) {
+          const err = error as CustomError;
+          throw err;
         }
-
-        const user = await db.user.findUnique({
-          where: { email: credentials?.email as string },
-          include: { role: true },
-        });
-
-        if (!user) {
-          throw new CustomError("Invalid email or password");
-        }
-
-        const passwordMatch = await compare(
-          credentials.password as string,
-          user.password,
-        );
-
-        if (!passwordMatch) {
-          throw new CustomError("Invalid email or password");
-        }
-
-        return {
-          id: String(user.id),
-          username: user.username,
-          email: user.email,
-          role: user.role,
-        };
       },
     }),
   ],
@@ -115,5 +120,6 @@ export const authConfig = {
   },
   pages: {
     signIn: "/login",
+    newUser: "/register",
   },
 } satisfies NextAuthConfig;

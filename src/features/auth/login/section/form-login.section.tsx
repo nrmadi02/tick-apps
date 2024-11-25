@@ -47,6 +47,8 @@ export default function FormLoginSection() {
 
     if (response?.error) {
       toast.error(response?.code);
+      form.setError("password", { message: response?.code });
+      form.setError("email", { message: "" }, { shouldFocus: true });
       return;
     }
 
