@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { Permission, Role, Subject } from "@prisma/client";
 import { compare } from "bcrypt";
 import {
   CredentialsSignin,
@@ -24,6 +24,7 @@ declare module "next-auth" {
       username: string;
       email: string;
       role: Role;
+      permissions: (Permission & { subject: Subject })[];
       // ...other properties
       // role: UserRole;
     } & DefaultSession["user"];
@@ -70,7 +71,11 @@ export const authConfig = {
 
           const user = await db.user.findUnique({
             where: { email: credentials?.email as string },
-            include: { role: true },
+            include: {
+              role: {
+                include: { permissions: { include: { subject: true } } },
+              },
+            },
           });
 
           if (!user) {
@@ -91,6 +96,7 @@ export const authConfig = {
             username: user.username,
             email: user.email,
             role: user.role,
+            permissions: user.role.permissions,
           };
         } catch (error) {
           const err = error as CustomError;
