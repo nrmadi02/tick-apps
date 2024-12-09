@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "~/components/ui/button";
 import {
   Table,
   TableBody,
@@ -9,10 +10,12 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { useAbility } from "~/hooks/use-ability";
 import { api } from "~/trpc/react";
 
 export default function RolesTableSection() {
   const { data, isLoading, error } = api.role.getAllRoles.useQuery();
+  const ability = useAbility();
 
   if (isLoading) {
     return <div className="p-5">Loading...</div>;
@@ -28,7 +31,9 @@ export default function RolesTableSection() {
 
   return (
     <section className="p-5">
-      <div className="flex items-center justify-between gap-2">
+      {ability.can("create", "Role") && <Button>Add Role</Button>}
+
+      <div className="mt-2 flex items-center justify-between gap-2">
         <p className="text-lg font-bold">Roles</p>
       </div>
 
