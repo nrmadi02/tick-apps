@@ -51,6 +51,28 @@ export async function seedPermissions() {
       subjectName: "Permission",
       description: "Delete a permission",
     },
+
+    // Permissions untuk Subject
+    {
+      action: "create",
+      subjectName: "Subject",
+      description: "Create a subject",
+    },
+    {
+      action: "read",
+      subjectName: "Subject",
+      description: "Read subject details",
+    },
+    {
+      action: "update",
+      subjectName: "Subject",
+      description: "Update subject information",
+    },
+    {
+      action: "delete",
+      subjectName: "Subject",
+      description: "Delete a subject",
+    },
     // Tambahkan Permissions lain sesuai kebutuhan
   ];
 

@@ -10,6 +10,7 @@ export async function seedSubjects() {
     { name: "User", description: "User accounts and profiles" },
     { name: "Role", description: "User roles and permissions" },
     { name: "Permission", description: "System permissions" },
+    { name: "Subject", description: "Subjects" }
   ];
 
   for (const subject of subjectsData) {

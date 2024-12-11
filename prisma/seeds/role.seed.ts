@@ -14,18 +14,29 @@ export async function seedRoles() {
       name: "admin",
       description: "Administrator with full access",
       permissionActions: [
+        // Permissions untuk User
         { action: "create", subjectName: "User" },
         { action: "read", subjectName: "User" },
         { action: "update", subjectName: "User" },
         { action: "delete", subjectName: "User" },
+
+        // Permissions untuk Role
         { action: "create", subjectName: "Role" },
         { action: "read", subjectName: "Role" },
         { action: "update", subjectName: "Role" },
         { action: "delete", subjectName: "Role" },
+
+        // Permissions untuk Permission
         { action: "create", subjectName: "Permission" },
         { action: "read", subjectName: "Permission" },
         { action: "update", subjectName: "Permission" },
         { action: "delete", subjectName: "Permission" },
+
+        // Permissions untuk Subject
+        { action: "read", subjectName: "Subject" },
+        { action: "update", subjectName: "Subject" },
+        { action: "delete", subjectName: "Subject" },
+        { action: "create", subjectName: "Subject" },
         // Tambahkan Permissions lain sesuai kebutuhan
       ],
     },
