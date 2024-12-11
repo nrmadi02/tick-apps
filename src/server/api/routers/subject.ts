@@ -4,7 +4,7 @@ import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const subjectRouter = createTRPCRouter({
   getAllSubjects: protectedProcedure.query(async ({ ctx }) => {
-    if (!ctx.ability.can("read", "Permission")) {
+    if (!ctx.ability.can("read", "Subject")) {
       throw new TRPCError({
         code: "FORBIDDEN",
         message: "Access denied not enough permissions",
