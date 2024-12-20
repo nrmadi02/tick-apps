@@ -1,5 +1,8 @@
 "use client";
 
+import { Eye } from "lucide-react";
+import Link from "next/link";
+
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import {
@@ -45,6 +48,7 @@ export default function RolesTableSection() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Description</TableHead>
+              <TableHead>Permissions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -52,6 +56,13 @@ export default function RolesTableSection() {
               <TableRow key={role.name}>
                 <TableCell className="font-medium">{role.name}</TableCell>
                 <TableCell>{role.description}</TableCell>
+                <TableCell className="text-center">
+                  <Link href={`/managements/roles/${role.id}/permissions`}>
+                    <Button title="View" size="icon">
+                      <Eye />
+                    </Button>
+                  </Link>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
