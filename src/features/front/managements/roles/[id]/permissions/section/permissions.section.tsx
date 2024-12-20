@@ -14,6 +14,7 @@ export default function PermissionsSection({ roleId }: { roleId: string }) {
     isLoading: isLoadingRole,
     error: errorRole,
     refetch: refetchRole,
+    isFetching: isFetchingRole,
   } = api.role.getDetailRoleById.useQuery({ id: roleId });
   const {
     data: subjects,
@@ -26,15 +27,14 @@ export default function PermissionsSection({ roleId }: { roleId: string }) {
     error: errorPermissions,
   } = api.permission.getAllPermissions.useQuery();
 
-  const { mutate, isPending } =
-    api.role.managePermissionsForRole.useMutation({
-      onSuccess: () => {
-        refetchRole();
-      },
-      onError: (error) => {
-        toast.error(error.message);
-      },
-    });
+  const { mutate, isPending } = api.role.managePermissionsForRole.useMutation({
+    onSuccess: () => {
+      refetchRole();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
 
   if (isLoadingRole || isLoadingSubjects || isLoadingPermissions) {
     return <div>Loading...</div>;
@@ -74,11 +74,11 @@ export default function PermissionsSection({ roleId }: { roleId: string }) {
                       key={permission.id}
                       className="flex items-center space-x-2"
                     >
-                      {isPending && (
-                        <LoaderCircle className="animate-spin size-4 text-primary" />
+                      {(isPending || isFetchingRole) && (
+                        <LoaderCircle className="size-4 animate-spin text-primary" />
                       )}
 
-                      {!isPending && (
+                      {!isPending && !isFetchingRole && (
                         <Checkbox
                           id={permission.id}
                           checked={hasPermission}
