@@ -1,5 +1,8 @@
 "use client";
 
+import { LoaderCircle } from "lucide-react";
+import { toast } from "sonner";
+
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
@@ -10,6 +13,7 @@ export default function PermissionsSection({ roleId }: { roleId: string }) {
     data: role,
     isLoading: isLoadingRole,
     error: errorRole,
+    refetch: refetchRole,
   } = api.role.getDetailRoleById.useQuery({ id: roleId });
   const {
     data: subjects,
@@ -21,6 +25,16 @@ export default function PermissionsSection({ roleId }: { roleId: string }) {
     isLoading: isLoadingPermissions,
     error: errorPermissions,
   } = api.permission.getAllPermissions.useQuery();
+
+  const { mutate, isPending } =
+    api.role.managePermissionsForRole.useMutation({
+      onSuccess: () => {
+        refetchRole();
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
 
   if (isLoadingRole || isLoadingSubjects || isLoadingPermissions) {
     return <div>Loading...</div>;
@@ -60,10 +74,31 @@ export default function PermissionsSection({ roleId }: { roleId: string }) {
                       key={permission.id}
                       className="flex items-center space-x-2"
                     >
-                      <Checkbox
-                        id={permission.id}
-                        checked={hasPermission}
-                      />
+                      {isPending && (
+                        <LoaderCircle className="animate-spin size-4 text-primary" />
+                      )}
+
+                      {!isPending && (
+                        <Checkbox
+                          id={permission.id}
+                          checked={hasPermission}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              mutate({
+                                roleid: roleId,
+                                permissionId: permission.id,
+                                action: "add",
+                              });
+                            } else {
+                              mutate({
+                                roleid: roleId,
+                                permissionId: permission.id,
+                                action: "remove",
+                              });
+                            }
+                          }}
+                        />
+                      )}
                       <Label htmlFor={permission.id} className="ml-2">
                         {permission.action}
                       </Label>
