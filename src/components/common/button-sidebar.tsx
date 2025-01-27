@@ -1,8 +1,9 @@
-// eslint-disable-next-line import/order
 import { Menu } from "lucide-react";
 import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
 
+import { auth } from "~/server/auth";
+
+import ButtonLogout from "./button-logout";
 import { Button } from "../ui/button";
 import {
   Sheet,
@@ -13,8 +14,8 @@ import {
   SheetTrigger,
 } from "../ui/sheet";
 
-export default function ButtonSidebar() {
-  const session = useSession();
+export default async function ButtonSidebar() {
+  const session = await auth();
 
   return (
     <Sheet>
@@ -34,17 +35,18 @@ export default function ButtonSidebar() {
           <p>List Menu</p>
         </div>
         <SheetFooter className="mt-10 flex-col gap-2">
-          {session.status === "unauthenticated" && (
-            <><Button asChild>
-              <Link href="/login">Login</Link>
-            </Button><Button variant={"outline"}>
+          {!session && (
+            <>
+              <Button asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button variant={"outline"}>
                 <Link href="/register">Register</Link>
-              </Button></>
+              </Button>
+            </>
           )}
-          {session.status === "authenticated" && (
-            <Button onClick={() => signOut()}>
-              Logout
-            </Button>
+          {session && (
+            <ButtonLogout />
           )}
         </SheetFooter>
       </SheetContent>

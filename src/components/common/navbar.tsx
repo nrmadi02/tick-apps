@@ -1,5 +1,3 @@
-"use client";
-
 import ButtonProfile from "./button-profile";
 import ButtonSearch from "./button-search";
 import ButtonSidebar from "./button-sidebar";
