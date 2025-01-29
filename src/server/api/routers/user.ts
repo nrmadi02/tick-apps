@@ -30,18 +30,19 @@ export const userRouter = createTRPCRouter({
         });
       }
 
-      await ctx.db.user.create({
+      const user = await ctx.db.user.create({
         data: {
           username: input.username,
           email: input.email,
           password: await bcrypt.hash(input.password, 10),
           role: { connect: { name: "user" } },
         },
+        select: { username: true, email: true },
       });
 
       return {
-        username: input.username,
-        email: input.email,
+        username: user.username,
+        email: user.email,
       };
     }),
 });
