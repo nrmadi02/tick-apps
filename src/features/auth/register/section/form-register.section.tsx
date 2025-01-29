@@ -25,7 +25,10 @@ import { Input } from "~/components/ui/input";
 import { InputPassword } from "~/components/ui/input-password";
 import { api } from "~/trpc/react";
 
-import { RegisterRequest, registerSchema } from "../types/request-request.type";
+import {
+  RegisterRequest,
+  registerSchema,
+} from "../types/register-request.type";
 
 export default function FormRegisterSection() {
   const router = useRouter();

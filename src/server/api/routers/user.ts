@@ -1,14 +1,12 @@
 import { TRPCError } from "@trpc/server";
 import bcrypt from "bcrypt";
 
-import { registerSchema } from "~/features/auth/register/types/request-request.type";
+import { registerSchema } from "~/features/auth/register/types/register-request.type";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
   register: publicProcedure
-    .input(
-      registerSchema,
-    )
+    .input(registerSchema)
     .mutation(async ({ input, ctx }) => {
       const existingUserByUsername = await ctx.db.user.findUnique({
         where: { username: input.username },
