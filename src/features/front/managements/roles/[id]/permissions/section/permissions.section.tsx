@@ -51,7 +51,7 @@ export default function PermissionsSection({ roleId }: { roleId: string }) {
   return (
     <Card className="m-2">
       <CardHeader>
-        <CardTitle>Permissions</CardTitle>
+        <CardTitle>Permissions - {role.role.name}</CardTitle>
       </CardHeader>
 
       <CardContent className="space-y-2">
