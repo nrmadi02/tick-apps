@@ -53,7 +53,7 @@ export default function FormRegisterSection() {
     },
   });
 
-  async function onSubmit(values: RegisterRequest) {
+  function onSubmit(values: RegisterRequest) {
     try {
       mutate(values);
     } catch (error) {

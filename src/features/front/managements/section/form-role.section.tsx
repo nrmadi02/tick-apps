@@ -41,7 +41,7 @@ export default function FormRoleSection({ closeDialog }: FormRoleSectionProps) {
     },
   });
 
-  async function onSubmit(values: RoleRequest) {
+  function onSubmit(values: RoleRequest) {
     try {
       mutate(values);
     } catch (error) {
