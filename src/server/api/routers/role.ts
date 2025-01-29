@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
+import { roleSchema } from "~/features/front/managements/types/role-request.type";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const roleRouter = createTRPCRouter({
@@ -16,6 +17,31 @@ export const roleRouter = createTRPCRouter({
 
     return { roles };
   }),
+
+  addRole: protectedProcedure
+    .input(roleSchema)
+    .mutation(async ({ input, ctx }) => {
+      if (!ctx.ability.can("create", "Role")) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Access denied not enough permissions",
+        });
+      }
+
+      const role = await ctx.db.role.create({
+        data: {
+          name: input.name,
+          description: input.description,
+        },
+        select: { id: true, name: true, description: true },
+      });
+
+      return {
+        id: role.id,
+        name: role.name,
+        description: role.description,
+      };
+    }),
 
   getDetailRoleById: protectedProcedure
     .input(z.object({ id: z.string() }))

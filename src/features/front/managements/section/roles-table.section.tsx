@@ -16,6 +16,8 @@ import {
 } from "~/components/ui/table";
 import { api } from "~/trpc/react";
 
+import RoleDialogSection from "./role-dialog.section";
+
 export default function RolesTableSection() {
   const { data, isLoading, error } = api.role.getAllRoles.useQuery();
 
@@ -37,7 +39,7 @@ export default function RolesTableSection() {
         <div className="flex items-center justify-between gap-2">
           <p className="text-lg font-bold">Roles</p>
 
-          <Button>Add Role</Button>
+          <RoleDialogSection />
         </div>
       </CardHeader>
 
