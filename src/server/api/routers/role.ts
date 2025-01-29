@@ -121,4 +121,32 @@ export const roleRouter = createTRPCRouter({
         },
       });
     }),
+
+  deleteRole: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      if (!ctx.ability.can("delete", "Role")) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Access denied not enough permissions",
+        });
+      }
+
+      const role = await ctx.db.role.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!role) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Role not found",
+        });
+      }
+
+      await ctx.db.role.delete({
+        where: {
+          id: input.id,
+        },
+      });
+    }),
 });

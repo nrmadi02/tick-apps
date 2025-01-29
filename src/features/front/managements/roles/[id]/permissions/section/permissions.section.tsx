@@ -8,7 +8,13 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Label } from "~/components/ui/label";
 import { api } from "~/trpc/react";
 
-export default function PermissionsSection({ roleId }: { roleId: string }) {
+import DeleteRoleSection from "./delete-role.section";
+
+interface PermissionSectionProps {
+  roleId: string;
+}
+
+export default function PermissionsSection({ roleId }: PermissionSectionProps) {
   const {
     data: role,
     isLoading: isLoadingRole,
@@ -55,6 +61,8 @@ export default function PermissionsSection({ roleId }: { roleId: string }) {
       </CardHeader>
 
       <CardContent className="space-y-2">
+        <DeleteRoleSection roleId={roleId} />
+
         {subjects.subjects.map((subject) => (
           <Card key={subject.id} className="">
             <CardHeader>
