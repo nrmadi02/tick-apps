@@ -16,6 +16,7 @@ datasource db {
 
 model User {
     id                     Int       @id @default(autoincrement())
+    uuid                   String?   @unique @default(uuid())
     username               String    @unique
     password               String
     email                  String    @unique
@@ -26,6 +27,8 @@ model User {
     roleId                 String
     createdAt              DateTime  @default(now())
     updatedAt              DateTime  @updatedAt
+    cart                   Cart?
+    order                  Order[]
 
     @@map("users")
 }
@@ -59,6 +62,92 @@ model Subject {
     permissions Permission[]
 
     @@map("subjects")
+}
+
+model Event {
+    id          String      @id @default(uuid())
+    name        String
+    description String?
+    startDate   DateTime
+    endDate     DateTime
+    venue       String
+    address     String
+    city        String
+    province    String
+    country     String      @default("Indonesia")
+    postalCode  String?
+    coordinates Json?
+    status      EventStatus @default(DRAFT)
+    categories  Json        @default("[]")
+    tickets     Ticket[]
+    cartItems   CartItem[]
+    createdAt   DateTime    @default(now())
+    updatedAt   DateTime    @updatedAt
+}
+
+model Cart {
+    id        String     @id @default(uuid())
+    userId    Int        @unique
+    user      User       @relation(fields: [userId], references: [id])
+    items     CartItem[]
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+}
+
+model CartItem {
+    id        String   @id @default(uuid())
+    cartId    String
+    cart      Cart     @relation(fields: [cartId], references: [id])
+    eventId   String
+    event     Event    @relation(fields: [eventId], references: [id])
+    category  Json
+    quantity  Int      @default(1)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([cartId, eventId])
+}
+
+model Ticket {
+    id        String       @id @default(uuid())
+    eventId   String
+    event     Event        @relation(fields: [eventId], references: [id])
+    category  Json
+    status    TicketStatus @default(AVAILABLE)
+    orders    Order[]
+    createdAt DateTime     @default(now())
+    updatedAt DateTime     @updatedAt
+}
+
+model Order {
+    id        String      @id @default(uuid())
+    userId    Int
+    user      User        @relation(fields: [userId], references: [id])
+    tickets   Ticket[]
+    status    OrderStatus @default(PENDING)
+    total     Float
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @updatedAt
+}
+
+enum EventStatus {
+    DRAFT
+    PUBLISHED
+    CANCELLED
+}
+
+enum OrderStatus {
+    PENDING
+    PAID
+    CANCELLED
+    REFUNDED
+}
+
+enum TicketStatus {
+    AVAILABLE
+    SOLD
+    USED
+    CANCELLED
 }
 
 enum ActionType {
