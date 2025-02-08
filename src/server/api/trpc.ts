@@ -15,6 +15,8 @@ import { defineAbilityFor } from "~/lib/ability";
 import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 
+import { AdminEventService } from "./services/admin/event.service";
+
 /**
  * 1. CONTEXT
  *
@@ -57,6 +59,8 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
     };
   },
 });
+
+export type TRPCContext = Awaited<ReturnType<typeof createTRPCContext>>;
 
 /**
  * Create a server-side caller.
@@ -114,6 +118,15 @@ const abilityMiddleware = t.middleware(async ({ next, ctx }) => {
   return next({ ctx: { ...ctx, ability } });
 });
 
+const serviceMiddleware = t.middleware(async ({ next, ctx }) => {
+  const adminEventService = new AdminEventService(ctx);
+  const service = {
+    adminEventService,
+  };
+
+  return next({ ctx: { ...ctx, service } });
+});
+
 /**
  * Public (unauthenticated) procedure
  *
@@ -134,6 +147,7 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(abilityMiddleware)
+  .use(serviceMiddleware)
   .use(({ ctx, next }) => {
     if (!ctx.session || !ctx.session.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });

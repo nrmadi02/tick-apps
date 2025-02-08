@@ -1,3 +1,4 @@
+import { adminEventRouter } from "~/server/api/routers/admin/event";
 import { permissionRouter } from "~/server/api/routers/permission";
 import { postRouter } from "~/server/api/routers/post";
 import { roleRouter } from "~/server/api/routers/role";
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   role: roleRouter,
   permission: permissionRouter,
   subject: subjectRouter,
+  adminEvent: adminEventRouter,
 });
 
 // export type definition of API

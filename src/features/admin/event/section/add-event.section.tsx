@@ -1,12 +1,25 @@
+"use client";
+
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
+
+import AddEventForm from "../components/add-event.form";
+
 export default function AddEventSection() {
+  const router = useRouter();
   return (
-    <div className="pt-3">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-bold">Add Event</h1>
-          <p>Add new event</p>
-        </div>
+    <div>
+      <div className="my-5 flex items-center">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="size-5" />
+          <p className="text-sm font-bold">Back to Event</p>
+        </button>
       </div>
+      <AddEventForm />
     </div>
   );
 }

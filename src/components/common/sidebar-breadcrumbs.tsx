@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment } from "react";
 
@@ -41,8 +42,8 @@ export default function SidebarBreadcrumbs() {
                     {item.name}
                   </BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink className="capitalize" href={`/${item.path}`}>
-                    {item.name}
+                  <BreadcrumbLink asChild className="capitalize">
+                    <Link href={`/${item.path}`}>{item.name}</Link>
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
