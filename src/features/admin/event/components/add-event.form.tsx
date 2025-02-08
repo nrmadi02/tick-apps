@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
 
+import LocationPicker from "~/components/common/location-picker";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import {
@@ -276,6 +277,23 @@ export default function AddEventForm() {
                   )}
                 />
               </div>
+
+              <FormField
+                control={form.control}
+                name="coordinates"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pilih dari Map</FormLabel>
+                    <FormControl>
+                      <LocationPicker
+                        onChange={field.onChange}
+                        value={field.value}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
           </CardContent>
         </Card>
