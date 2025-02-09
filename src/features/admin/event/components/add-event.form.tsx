@@ -2,11 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { id } from "date-fns/locale";
+import { id as locale } from "date-fns/locale";
 import { CalendarIcon, Plus, Trash2, X } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -44,9 +44,55 @@ import {
   createEventSchema,
 } from "../types/admin-event.request";
 
-export default function AddEventForm() {
+interface EventFormProps {
+  isEdit: boolean;
+  id?: string;
+}
+
+export default function AddEventForm(props: EventFormProps) {
+  const { isEdit, id } = props;
+
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { data: eventDetail } = api.adminEvent.getDetail.useQuery(
+    {
+      id: id as string,
+    },
+    {
+      enabled: isEdit,
+    },
+  );
+
+  const defaultValues: CreateEventRequest = useMemo(() => {
+    return {
+      name: eventDetail?.data.name ?? "",
+      description: eventDetail?.data.description ?? "",
+      startDate: eventDetail?.data.startDate ?? new Date(),
+      endDate: eventDetail?.data.endDate ?? new Date(),
+      venue: eventDetail?.data.venue ?? "",
+      address: eventDetail?.data.address ?? "",
+      city: eventDetail?.data.city ?? "",
+      thumbnail: eventDetail?.data.thumbnail ?? "",
+      coordinates: (eventDetail?.data.coordinates as {
+        latitude: number;
+        longitude: number;
+      }) ?? {
+        latitude: 0,
+        longitude: 0,
+      },
+      banner: eventDetail?.data.banner ?? "",
+      poster: eventDetail?.data.poster ?? "",
+      province: eventDetail?.data.province ?? "",
+      country: eventDetail?.data.country ?? "",
+      categories:
+        eventDetail?.data.categories.map((category) => ({
+          name: category.name,
+          price: category.price.toString(),
+          quota: category.quota.toString(),
+        })) ?? [],
+    };
+  }, [eventDetail]);
 
   const form = useForm<CreateEventRequest>({
     resolver: zodResolver(createEventSchema),
@@ -60,6 +106,7 @@ export default function AddEventForm() {
       country: "Indonesia",
       categories: [{ name: "", price: "", quota: "" }],
     },
+    values: defaultValues,
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -81,10 +128,32 @@ export default function AddEventForm() {
     },
   });
 
+  const updateEvent = api.adminEvent.update.useMutation({
+    onSuccess: () => {
+      toast.success("Event updated successfully");
+      setIsSubmitting(false);
+      form.reset();
+      router.push("/admin/event");
+    },
+    onError: (error) => {
+      // Handle error (e.g., show error message)
+      setIsSubmitting(false);
+      console.error(error);
+    },
+  });
+
   function onSubmit(data: CreateEventRequest) {
     setIsSubmitting(true);
     createEvent.mutate(data);
   }
+
+  const onSubmitUpdate = (data: CreateEventRequest) => {
+    setIsSubmitting(true);
+    updateEvent.mutate({
+      id: id as string,
+      input: data,
+    });
+  };
 
   const errorsCategory = (message: string) => {
     return message ? ` (${message})` : "";
@@ -92,7 +161,10 @@ export default function AddEventForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="mt-3 space-y-8">
+      <form
+        onSubmit={form.handleSubmit(isEdit ? onSubmitUpdate : onSubmit)}
+        className="mt-3 space-y-8"
+      >
         <Card>
           <CardHeader>
             <CardTitle>Informasi Event</CardTitle>
@@ -154,7 +226,7 @@ export default function AddEventForm() {
                             )}
                           >
                             {field.value ? (
-                              format(field.value, "PPP", { locale: id })
+                              format(field.value, "PPP", { locale })
                             ) : (
                               <span>Pilih tanggal</span>
                             )}
@@ -194,7 +266,7 @@ export default function AddEventForm() {
                             )}
                           >
                             {field.value ? (
-                              format(field.value, "PPP", { locale: id })
+                              format(field.value, "PPP", { locale })
                             ) : (
                               <span>Pilih tanggal</span>
                             )}
@@ -548,7 +620,9 @@ export default function AddEventForm() {
         </Card>
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Menyimpan..." : "Buat Event"}
+          {isSubmitting
+            ? "Menyimpan..."
+            : `${isEdit ? "Edit" : "Tambah"} Event`}
         </Button>
       </form>
     </Form>

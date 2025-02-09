@@ -32,6 +32,26 @@ export const createEventSchema = z.object({
     .min(1, "At least one ticket category is required"),
 });
 
+export const updateEventSchema = z.object({
+  name: z.string().min(3, "Name event minimal 3 characters"),
+  description: z.string().min(10, "Description minimal 10 characters"),
+  startDate: z.date().min(new Date(), "Date must be in the future"),
+  endDate: z.date(),
+  venue: z.string(),
+  address: z.string(),
+  city: z.string(),
+  province: z.string(),
+  country: z.string().default("Indonesia"),
+  postalCode: z.string().optional(),
+  coordinates: coordinatesSchema.optional(),
+  thumbnail: z.string().optional(),
+  banner: z.string().optional(),
+  poster: z.string().optional(),
+  categories: z
+    .array(ticketCategorySchema)
+    .min(1, "At least one ticket category is required"),
+});
+
 export const getEventsSchema = z.object({
   search: z.string().optional(),
   city: z.string().optional(),
@@ -46,3 +66,4 @@ export const getEventsSchema = z.object({
 });
 
 export type CreateEventRequest = z.infer<typeof createEventSchema>;
+export type UpdateEventRequest = z.infer<typeof updateEventSchema>;

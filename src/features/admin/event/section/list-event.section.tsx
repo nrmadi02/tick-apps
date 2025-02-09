@@ -5,17 +5,26 @@ import {
   RowSelectionState,
   SortingState,
 } from "@tanstack/react-table";
-import { Plus } from "lucide-react";
+import { MoreHorizontal, Plus } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { DataTable } from "~/components/common/react-table";
 import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { api } from "~/trpc/react";
 
 import { listEventColumns } from "../columns/list-event.column";
 
 export default function ListEventSection() {
+  const router = useRouter();
+
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -28,7 +37,44 @@ export default function ListEventSection() {
   });
 
   const columns = useMemo(
-    () => [...listEventColumns],
+    () => [
+      ...listEventColumns,
+      {
+        header: "Aksi",
+        id: "actions",
+        cell: ({ row }) => {
+          const event = row.original;
+
+          return (
+            <div className="flex items-center justify-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="size-8 p-0">
+                    <span className="sr-only">Buka menu</span>
+                    <MoreHorizontal className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={() => navigator.clipboard.writeText(event.id)}
+                  >
+                    Copy ID Event
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => router.push(`/admin/event/${event.id}/edit`)}
+                  >
+                    Edit Event
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-destructive">
+                    Hapus Event
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      },
+    ],
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [events.data],
@@ -52,7 +98,7 @@ export default function ListEventSection() {
         <DataTable
           className="bg-[#FFFFFF]"
           statePagination={{
-            pageCount: 200,
+            pageCount: events.data?.meta?.totalPages || 0,
             pagination,
             setPagination,
           }}

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 import AddEventForm from "../components/add-event.form";
 
-export default function AddEventSection() {
+export default function EditEventSection(props: { id: string }) {
   const router = useRouter();
   return (
     <div>
@@ -19,7 +19,7 @@ export default function AddEventSection() {
           <p className="text-sm font-bold">Back to Event</p>
         </button>
       </div>
-      <AddEventForm isEdit={false} />
+      <AddEventForm isEdit id={props.id} />
     </div>
   );
 }

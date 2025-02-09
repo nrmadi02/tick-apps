@@ -83,7 +83,6 @@ export class AdminEventService {
         },
       );
     } catch (error) {
-      console.error("Error creating event:", error);
       this.handleError(
         error as Prisma.PrismaClientKnownRequestError | TRPCError,
       );
@@ -132,14 +131,119 @@ export class AdminEventService {
             name: string;
             price: number;
           }[],
-          _count: undefined,
+          _count: event._count,
         })),
         success: true,
         meta: this.buildPaginationMeta(total, input),
         message: "Event berhasil didapatkan",
       };
     } catch (error) {
-      console.error("Error getting events:", error);
+      this.handleError(
+        error as Prisma.PrismaClientKnownRequestError | TRPCError,
+      );
+    }
+  }
+
+  async getEvent(id: string) {
+    try {
+      const event = await this.ctx.db.event.findUniqueOrThrow({
+        where: { id },
+        include: {
+          _count: {
+            select: {
+              tickets: {
+                where: {
+                  status: "AVAILABLE",
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return {
+        data: {
+          ...event,
+          availableTickets: event._count.tickets,
+          categories: event.categories as {
+            name: string;
+            price: number;
+            quota: number;
+          }[],
+          _count: event._count,
+        },
+        success: true,
+        message: "Event berhasil didapatkan",
+      };
+    } catch (error) {
+      this.handleError(
+        error as Prisma.PrismaClientKnownRequestError | TRPCError,
+      );
+    }
+  }
+
+  async updateEvent(id: string, input: CreateEventRequest) {
+    try {
+      return await this.ctx.db.$transaction(async (tx) => {
+        const event = await tx.event.update({
+          where: { id },
+          data: {
+            name: input.name,
+            description: input.description,
+            startDate: input.startDate,
+            endDate: input.endDate,
+            venue: input.venue,
+            address: input.address,
+            city: input.city,
+            province: input.province,
+            country: input.country,
+            postalCode: input.postalCode,
+            coordinates: input.coordinates || [],
+            categories: input.categories,
+            thumbnail: input.thumbnail ?? undefined,
+            banner: input.banner ?? undefined,
+            poster: input.poster ?? undefined,
+          },
+        });
+
+        await tx.ticket.deleteMany({
+          where: {
+            eventId: id,
+          },
+        });
+
+        for (const category of input.categories) {
+          const ticketData = Array(Number(category.quota)).fill({
+            eventId: event.id,
+            category: {
+              name: category.name,
+              price: category.price,
+              description: category.description,
+            },
+            status: "AVAILABLE",
+          });
+
+          await tx.ticket.createMany({
+            data: ticketData,
+          });
+        }
+
+        const eventWithTicketCount = await tx.event.findUniqueOrThrow({
+          where: { id: event.id },
+          include: {
+            _count: {
+              select: { tickets: true },
+            },
+          },
+        });
+
+        return {
+          success: true,
+          event: eventWithTicketCount,
+          message: "Event berhasil diupdate",
+        };
+      });
+    } catch (error) {
       this.handleError(
         error as Prisma.PrismaClientKnownRequestError | TRPCError,
       );
@@ -186,7 +290,7 @@ export class AdminEventService {
   }
 
   private handleError(error: Prisma.PrismaClientKnownRequestError | TRPCError) {
-    console.error("EventService Error:", error);
+    console.error("EventService Error:", error.stack);
 
     if (error.code === "P2002") {
       throw new TRPCError({

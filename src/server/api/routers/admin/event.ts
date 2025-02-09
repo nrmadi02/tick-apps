@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import {
   createEventSchema,
   getEventsSchema,
@@ -14,5 +16,18 @@ export const adminEventRouter = createTRPCRouter({
     .input(getEventsSchema)
     .query(async ({ ctx, input }) => {
       return await ctx.service.adminEventService.getEvents(input);
+    }),
+  getDetail: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await ctx.service.adminEventService.getEvent(input.id);
+    }),
+  update: protectedProcedure
+    .input(z.object({ id: z.string(), input: createEventSchema }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.service.adminEventService.updateEvent(
+        input.id,
+        input.input,
+      );
     }),
 });
