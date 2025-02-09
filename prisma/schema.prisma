@@ -81,6 +81,9 @@ model Event {
     categories  Json        @default("[]")
     tickets     Ticket[]
     cartItems   CartItem[]
+    thumbnail   String?
+    banner      String?
+    poster      String?
     createdAt   DateTime    @default(now())
     updatedAt   DateTime    @updatedAt
 }

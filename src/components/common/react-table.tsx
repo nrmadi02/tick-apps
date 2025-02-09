@@ -94,7 +94,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="w-full">
-      <div className="w-full overflow-x-auto rounded">
+      <div className="w-full overflow-x-auto rounded border">
         <Table
           className={cn("w-full min-w-[800px] table-auto md:w-full", className)}
         >

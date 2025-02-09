@@ -39,6 +39,9 @@ export class AdminEventService {
               postalCode: input.postalCode,
               coordinates: input.coordinates || [],
               categories: input.categories,
+              thumbnail: input.thumbnail ?? undefined,
+              banner: input.banner ?? undefined,
+              poster: input.poster ?? undefined,
               status: "DRAFT",
             },
           });

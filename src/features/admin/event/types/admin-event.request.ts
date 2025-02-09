@@ -24,6 +24,9 @@ export const createEventSchema = z.object({
   country: z.string().default("Indonesia"),
   postalCode: z.string().optional(),
   coordinates: coordinatesSchema.optional(),
+  thumbnail: z.string().optional(),
+  banner: z.string().optional(),
+  poster: z.string().optional(),
   categories: z
     .array(ticketCategorySchema)
     .min(1, "At least one ticket category is required"),
