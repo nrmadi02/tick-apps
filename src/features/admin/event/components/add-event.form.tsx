@@ -3,7 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { CalendarIcon, Plus, Trash2 } from "lucide-react";
+import { CalendarIcon, Plus, Trash2, X } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
@@ -34,6 +35,7 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { Textarea } from "~/components/ui/textarea";
+import { UploadButton } from "~/lib/uploadthing";
 import { cn } from "~/lib/utils";
 import { api } from "~/trpc/react";
 
@@ -294,6 +296,150 @@ export default function AddEventForm() {
                   </FormItem>
                 )}
               />
+
+              <div className="flex w-full gap-4">
+                <div className="w-full">
+                  <FormField
+                    control={form.control}
+                    name="thumbnail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Thumbnail (opsional)</FormLabel>
+                        <FormControl>
+                          <div className="relative mt-2 flex h-40 w-full justify-center overflow-hidden rounded-md border border-primary transition-all hover:bg-indigo-100">
+                            {field.value && (
+                              <>
+                                <Button
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute right-2 top-2 z-50"
+                                  onClick={() => field.onChange("")}
+                                >
+                                  <X className="size-4" />
+                                </Button>
+                                <Image
+                                  src={field.value}
+                                  alt="Thumbnail"
+                                  width={200}
+                                  height={200}
+                                />
+                              </>
+                            )}
+                            {!field.value && (
+                              <UploadButton
+                                endpoint="imageUploader"
+                                className="[&_label]:bg-primary [&_label]:text-sm"
+                                onClientUploadComplete={(res) => {
+                                  field.onChange(res[0]?.url);
+                                  toast.success("Upload Completed");
+                                }}
+                                onUploadError={(error: Error) => {
+                                  toast.error(error.message);
+                                }}
+                              />
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="w-full">
+                  <FormField
+                    control={form.control}
+                    name="banner"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Banner (opsional)</FormLabel>
+                        <FormControl>
+                          <div className="relative mt-2 flex h-40 w-full justify-center overflow-hidden rounded-md border border-primary transition-all hover:bg-indigo-100">
+                            {field.value && (
+                              <>
+                                <Button
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute right-2 top-2 z-50"
+                                  onClick={() => field.onChange("")}
+                                >
+                                  <X className="size-4" />
+                                </Button>
+                                <Image
+                                  src={field.value}
+                                  alt="Thumbnail"
+                                  width={200}
+                                  height={200}
+                                />
+                              </>
+                            )}
+                            {!field.value && (
+                              <UploadButton
+                                endpoint="imageUploader"
+                                className="[&_label]:bg-primary [&_label]:text-sm"
+                                onClientUploadComplete={(res) => {
+                                  field.onChange(res[0]?.url);
+                                  toast.success("Upload Completed");
+                                }}
+                                onUploadError={(error: Error) => {
+                                  toast.error(error.message);
+                                }}
+                              />
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <div className="w-full">
+                  <FormField
+                    control={form.control}
+                    name="poster"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Poster (opsional)</FormLabel>
+                        <FormControl>
+                          <div className="relative mt-2 flex h-40 w-full justify-center overflow-hidden rounded-md border border-primary transition-all hover:bg-indigo-100">
+                            {field.value && (
+                              <>
+                                <Button
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute right-2 top-2 z-50"
+                                  onClick={() => field.onChange("")}
+                                >
+                                  <X className="size-4" />
+                                </Button>
+                                <Image
+                                  src={field.value}
+                                  alt="Thumbnail"
+                                  width={200}
+                                  height={200}
+                                />
+                              </>
+                            )}
+                            {!field.value && (
+                              <UploadButton
+                                endpoint="imageUploader"
+                                className="[&_label]:bg-primary [&_label]:text-sm"
+                                onClientUploadComplete={(res) => {
+                                  field.onChange(res[0]?.url);
+                                  toast.success("Upload Completed");
+                                }}
+                                onUploadError={(error: Error) => {
+                                  toast.error(error.message);
+                                }}
+                              />
+                            )}
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
