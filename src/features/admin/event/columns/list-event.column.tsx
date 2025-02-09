@@ -1,16 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { MoreHorizontal } from "lucide-react";
 
 import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
 
 import { IEvent } from "../types/admin-event.interface";
 
@@ -81,37 +73,6 @@ export const listEventColumns: ColumnDef<IEvent>[] = [
       return (
         <div className="text-center text-sm">
           <p className="font-semibold">{availableTickets} tersedia</p>
-        </div>
-      );
-    },
-  },
-  {
-    header: "Aksi",
-    id: "actions",
-    cell: ({ row }) => {
-      const event = row.original;
-
-      return (
-        <div className="flex items-center justify-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="size-8 p-0">
-                <span className="sr-only">Buka menu</span>
-                <MoreHorizontal className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(event.id)}
-              >
-                Copy ID Event
-              </DropdownMenuItem>
-              <DropdownMenuItem>Edit Event</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">
-                Hapus Event
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       );
     },
