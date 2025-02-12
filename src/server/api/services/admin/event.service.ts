@@ -104,6 +104,9 @@ export class AdminEventService {
           venue: true,
           city: true,
           province: true,
+          thumbnail: true,
+          poster: true,
+          banner: true,
           status: true,
           categories: true,
           _count: {
@@ -174,6 +177,21 @@ export class AdminEventService {
         },
         success: true,
         message: "Event berhasil didapatkan",
+      };
+    } catch (error) {
+      this.handleError(
+        error as Prisma.PrismaClientKnownRequestError | TRPCError,
+      );
+    }
+  }
+
+  async deleteEvent(id: string) {
+    try {
+      await this.ctx.db.event.delete({ where: { id } });
+
+      return {
+        success: true,
+        message: "Event berhasil dihapus",
       };
     } catch (error) {
       this.handleError(

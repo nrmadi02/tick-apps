@@ -114,7 +114,7 @@ model CartItem {
 model Ticket {
     id        String       @id @default(uuid())
     eventId   String
-    event     Event        @relation(fields: [eventId], references: [id])
+    event     Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
     category  Json
     status    TicketStatus @default(AVAILABLE)
     orders    Order[]
