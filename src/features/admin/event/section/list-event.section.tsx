@@ -9,7 +9,9 @@ import { MoreHorizontal, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 
+import { DeleteConfirmationModal } from "~/components/common/modal-delete-confirmation";
 import { DataTable } from "~/components/common/react-table";
 import { Button } from "~/components/ui/button";
 import {
@@ -21,9 +23,13 @@ import {
 import { api } from "~/trpc/react";
 
 import { listEventColumns } from "../columns/list-event.column";
+import { IEvent } from "../types/admin-event.interface";
 
 export default function ListEventSection() {
   const router = useRouter();
+
+  const [open, setOpen] = useState(false);
+  const [selectData, setSelectData] = useState<IEvent>();
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -65,7 +71,13 @@ export default function ListEventSection() {
                   >
                     Edit Event
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setOpen(true);
+                      setSelectData(event);
+                    }}
+                    className="text-destructive"
+                  >
                     Hapus Event
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -79,6 +91,26 @@ export default function ListEventSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [events.data],
   );
+
+  const { mutateAsync, isPending } = api.adminEvent.delete.useMutation({
+    onSuccess: () => {
+      setOpen(false);
+      setSelectData(undefined);
+      events.refetch();
+    },
+  });
+
+  const handleDelete = async () => {
+    try {
+      await mutateAsync({
+        id: selectData?.id || "",
+      });
+    } catch (error) {
+      const e = error as Error;
+      console.log(e.message);
+      toast.error("Failed to delete event");
+    }
+  };
 
   return (
     <div className="pt-3">
@@ -115,6 +147,16 @@ export default function ListEventSection() {
           }}
         />
       </div>
+      <DeleteConfirmationModal
+        title="Delete Event"
+        description="Are you sure you want to delete this event?"
+        onConfirm={() => {
+          handleDelete();
+        }}
+        isOpen={open}
+        setOpen={setOpen}
+        isLoading={isPending}
+      />
     </div>
   );
 }

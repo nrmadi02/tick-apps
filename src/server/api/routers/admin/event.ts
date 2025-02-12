@@ -30,4 +30,9 @@ export const adminEventRouter = createTRPCRouter({
         input.input,
       );
     }),
+  delete: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.service.adminEventService.deleteEvent(input.id);
+    }),
 });
