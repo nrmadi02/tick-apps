@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, TicketStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -46,34 +46,48 @@ export class AdminEventService {
             },
           });
 
-          for (const category of input.categories) {
-            const ticketData = Array(Number(category.quota)).fill({
-              eventId: event.id,
-              category: {
-                name: category.name,
-                price: category.price,
-                description: category.description,
-              },
-              status: "AVAILABLE",
-            });
+          // Create one ticket per category, including the quota in the category data
+          const ticketData = input.categories.map((category) => ({
+            eventId: event.id,
+            category: {
+              name: category.name,
+              price: category.price,
+              description: category.description,
+              quota: category.quota,
+            },
+            status: "AVAILABLE" as TicketStatus,
+          }));
 
-            await tx.ticket.createMany({
-              data: ticketData,
-            });
-          }
+          await tx.ticket.createMany({
+            data: ticketData,
+          });
 
-          const eventWithTicketCount = await tx.event.findUniqueOrThrow({
+          // Get event with total quota (sum of all category quotas)
+          const eventWithTickets = await tx.event.findUniqueOrThrow({
             where: { id: event.id },
             include: {
-              _count: {
-                select: { tickets: true },
+              tickets: {
+                select: {
+                  category: true,
+                },
               },
             },
           });
 
+          // Calculate total quota from all categories
+          const totalQuota = eventWithTickets.tickets.reduce((sum, ticket) => {
+            const category = ticket.category as { quota: number };
+            return sum + category.quota;
+          }, 0);
+
           return {
             success: true,
-            event: eventWithTicketCount,
+            event: {
+              ...eventWithTickets,
+              _count: {
+                tickets: totalQuota, // Now represents total available seats across all categories
+              },
+            },
             message: "Event berhasil dibuat",
           };
         },
@@ -109,13 +123,12 @@ export class AdminEventService {
           banner: true,
           status: true,
           categories: true,
-          _count: {
+          tickets: {
             select: {
-              tickets: {
-                where: {
-                  status: "AVAILABLE",
-                },
-              },
+              category: true,
+            },
+            where: {
+              status: "AVAILABLE",
             },
           },
         },
@@ -127,15 +140,43 @@ export class AdminEventService {
       const total = await this.ctx.db.event.count({ where });
 
       return {
-        data: events.map((event) => ({
-          ...event,
-          availableTickets: event._count.tickets,
-          categories: event.categories as {
-            name: string;
-            price: number;
-          }[],
-          _count: event._count,
-        })),
+        data: events.map((event) => {
+          // Calculate available tickets from remaining quota in each category
+          const availableTickets = event.tickets.reduce((sum, ticket) => {
+            const category = ticket.category as {
+              remainingQuota: number;
+            };
+            return sum + Number(category.remainingQuota);
+          }, 0);
+
+          // Transform categories to include availability
+          const categories = (
+            event.categories as {
+              name: string;
+              price: number;
+              quota: number;
+              description?: string;
+            }[]
+          ).map((category) => ({
+            name: category.name,
+            price: category.price,
+            quota: category.quota,
+            description: category.description,
+          }));
+
+          // Remove tickets from the response as we've already processed them
+          const { tickets, ...eventWithoutTickets } = event;
+          console.log(tickets);
+
+          return {
+            ...eventWithoutTickets,
+            availableTickets,
+            categories,
+            _count: {
+              tickets: availableTickets,
+            },
+          };
+        }),
         success: true,
         meta: this.buildPaginationMeta(total, input),
         message: "Event berhasil didapatkan",
@@ -152,28 +193,48 @@ export class AdminEventService {
       const event = await this.ctx.db.event.findUniqueOrThrow({
         where: { id },
         include: {
-          _count: {
-            select: {
-              tickets: {
-                where: {
-                  status: "AVAILABLE",
-                },
-              },
-            },
+          tickets: {
+            where: { status: "AVAILABLE" },
           },
         },
+      });
+
+      // Calculate available tickets by summing up remainingQuota from each category
+      const availableTickets = event.tickets.reduce((sum, ticket) => {
+        const category = ticket.category as {
+          quota: number;
+          remainingQuota: number;
+        };
+        return sum + Number(category.remainingQuota);
+      }, 0);
+
+      // Transform categories to include availability information
+      const categories = event.tickets.map((ticket) => {
+        const category = ticket.category as {
+          name: string;
+          price: number;
+          description: string;
+          quota: number;
+          remainingQuota: number;
+        };
+
+        return {
+          name: category.name,
+          price: category.price,
+          quota: category.quota,
+          remainingQuota: category.remainingQuota,
+          description: category.description,
+        };
       });
 
       return {
         data: {
           ...event,
-          availableTickets: event._count.tickets,
-          categories: event.categories as {
-            name: string;
-            price: number;
-            quota: number;
-          }[],
-          _count: event._count,
+          availableTickets,
+          categories,
+          _count: {
+            tickets: availableTickets, // Update _count to reflect available tickets
+          },
         },
         success: true,
         message: "Event berhasil didapatkan",
@@ -201,8 +262,34 @@ export class AdminEventService {
   }
 
   async updateEvent(id: string, input: CreateEventRequest) {
+    if (input.endDate <= input.startDate) {
+      throw new TRPCError({
+        code: "BAD_REQUEST",
+        message: "Date end must be greater than date start",
+      });
+    }
+
     try {
       return await this.ctx.db.$transaction(async (tx) => {
+        // First, check if there are any sold tickets
+        const existingTickets = await tx.ticket.findMany({
+          where: {
+            eventId: id,
+            status: {
+              in: ["SOLD", "USED"],
+            },
+          },
+        });
+
+        if (existingTickets.length > 0) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message:
+              "Tidak dapat mengubah event yang sudah memiliki tiket terjual",
+          });
+        }
+
+        // Update event details
         const event = await tx.event.update({
           where: { id },
           data: {
@@ -224,40 +311,57 @@ export class AdminEventService {
           },
         });
 
+        // Delete existing available tickets
         await tx.ticket.deleteMany({
           where: {
             eventId: id,
+            status: "AVAILABLE",
           },
         });
 
-        for (const category of input.categories) {
-          const ticketData = Array(Number(category.quota)).fill({
-            eventId: event.id,
-            category: {
-              name: category.name,
-              price: category.price,
-              description: category.description,
-            },
-            status: "AVAILABLE",
-          });
+        // Create new tickets with updated category information
+        const ticketData = input.categories.map((category) => ({
+          eventId: event.id,
+          category: {
+            name: category.name,
+            price: category.price,
+            description: category.description,
+            quota: category.quota,
+            remainingQuota: category.quota,
+          },
+          status: "AVAILABLE" as TicketStatus,
+        }));
 
-          await tx.ticket.createMany({
-            data: ticketData,
-          });
-        }
+        await tx.ticket.createMany({
+          data: ticketData,
+        });
 
-        const eventWithTicketCount = await tx.event.findUniqueOrThrow({
+        // Get updated event with total available tickets
+        const eventWithTickets = await tx.event.findUniqueOrThrow({
           where: { id: event.id },
           include: {
-            _count: {
-              select: { tickets: true },
+            tickets: {
+              select: {
+                category: true,
+              },
             },
           },
         });
+
+        // Calculate total quota from all categories
+        const totalQuota = eventWithTickets.tickets.reduce((sum, ticket) => {
+          const category = ticket.category as { quota: number };
+          return sum + Number(category.quota);
+        }, 0);
 
         return {
           success: true,
-          event: eventWithTicketCount,
+          event: {
+            ...eventWithTickets,
+            _count: {
+              tickets: totalQuota,
+            },
+          },
           message: "Event berhasil diupdate",
         };
       });

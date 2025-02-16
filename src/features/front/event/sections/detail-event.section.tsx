@@ -170,6 +170,8 @@ export default function EventTicketDetail() {
     return <EventDetailSkeleton />;
   }
 
+  console.log(event);
+
   return (
     <div className="container mx-auto p-4">
       <div>
@@ -281,7 +283,7 @@ export default function EventTicketDetail() {
               className="w-full"
             >
               <CreditCardIcon className="mr-2 size-4" />
-              Langsung Beli
+              <span>Lanjutkan order</span>
             </Button>
           </div>
         </CardFooter>

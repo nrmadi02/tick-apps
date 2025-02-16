@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -140,7 +140,16 @@ export default function CheckoutEventSection() {
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-5">
-      <h1 className="mb-3 text-2xl font-bold">Checkout</h1>
+      <div>
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 font-bold"
+        >
+          <ArrowLeft />
+          Kembali
+        </button>
+      </div>
+      <h1 className="my-3 text-2xl font-bold">Checkout</h1>
 
       <div className="grid gap-8">
         {/* Order Summary */}
