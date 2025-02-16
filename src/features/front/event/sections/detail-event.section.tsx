@@ -7,10 +7,12 @@ import {
   ShoppingCart,
   ArrowLeft,
   CreditCardIcon,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState, useMemo } from "react";
+import { toast } from "sonner";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -25,6 +27,7 @@ import { formatRupiah } from "~/lib/format";
 import { api } from "~/trpc/react";
 
 import EventDetailSkeleton from "../components/event-detail-skeleton";
+import { TicketSelection } from "../types/order-request.type";
 
 interface Ticket {
   name: string;
@@ -156,9 +159,25 @@ export default function EventTicketDetail() {
     updateTicketQuantity(ticketData, parsedValue);
   };
 
-  const handleBuyTickets = () => {
+  const { mutateAsync, isPending } = api.publicEvent.createOrder.useMutation({
+    onSuccess: () => {
+      toast.success("Order created successfully");
+    },
+  });
+
+  const handleChekoutTickets = async () => {
     if (!hasSelectedTickets) return;
-    console.log("Proceeding to checkout with:", selectedTickets);
+
+    try {
+      const response = await mutateAsync({
+        eventId: params.id,
+        selections: selectedTickets as unknown as TicketSelection[],
+      });
+      console.log("Order created:", response);
+    } catch (error) {
+      console.error("Error creating order:", error);
+      toast.error("Error creating order");
+    }
   };
 
   const handleAddToCart = () => {
@@ -169,8 +188,6 @@ export default function EventTicketDetail() {
   if (isLoading) {
     return <EventDetailSkeleton />;
   }
-
-  console.log(event);
 
   return (
     <div className="container mx-auto p-4">
@@ -278,12 +295,16 @@ export default function EventTicketDetail() {
               <ShoppingCart className="size-10" />
             </Button>
             <Button
-              onClick={handleBuyTickets}
-              disabled={!hasSelectedTickets}
+              onClick={handleChekoutTickets}
+              disabled={!hasSelectedTickets || isPending}
               className="w-full"
             >
-              <CreditCardIcon className="mr-2 size-4" />
-              <span>Lanjutkan order</span>
+              {isPending ? (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              ) : (
+                <CreditCardIcon className="mr-2 size-4" />
+              )}
+              <span>Checkout</span>
             </Button>
           </div>
         </CardFooter>

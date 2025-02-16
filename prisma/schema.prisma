@@ -123,14 +123,77 @@ model Ticket {
 }
 
 model Order {
-    id        String      @id @default(uuid())
-    userId    Int
-    user      User        @relation(fields: [userId], references: [id])
-    tickets   Ticket[]
-    status    OrderStatus @default(PENDING)
-    total     Float
-    createdAt DateTime    @default(now())
-    updatedAt DateTime    @updatedAt
+    id            String      @id @default(uuid())
+    userId        Int
+    user          User        @relation(fields: [userId], references: [id])
+    tickets       Ticket[]
+    status        OrderStatus @default(PENDING)
+    total         Float
+    ticketDetails Json?
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
+    Payment       Payment?
+}
+
+model Payment {
+    id            String        @id @default(uuid())
+    orderId       String        @unique
+    order         Order         @relation(fields: [orderId], references: [id])
+    amount        Float
+    paymentMethod PaymentMethod // Menggunakan enum untuk payment method
+    provider      String        @default("midtrans")
+
+    // Midtrans specific fields
+    transactionId     String?       @unique // Midtrans transaction ID
+    transactionTime   DateTime?
+    transactionStatus PaymentStatus @default(PENDING)
+    paymentType       String? // Specific payment type from Midtrans (e.g. "bank_transfer", "gopay")
+
+    // Payment details
+    vaNumber    String? // Virtual Account number
+    bank        String? // Bank name for VA/Transfer
+    expiryTime  DateTime? // Payment expiry time
+    paymentLink String? // Payment URL from Midtrans
+
+    // Response fields
+    responseTime DateTime? // When we receive response from Midtrans
+    responseData Json? // Raw response from Midtrans
+    settlement   Json? // Settlement data
+
+    // Status tracking
+    statusHistory Json? // Array of status changes with timestamps
+    failureReason String? // Reason if payment fails
+    refundAmount  Float? // Amount refunded (if applicable)
+
+    // Metadata
+    metadata  Json? // Additional payment details
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("payments")
+}
+
+enum PaymentMethod {
+    BANK_TRANSFER
+    E_WALLET
+    CREDIT_CARD
+    RETAIL
+    PAYLATER
+}
+
+enum PaymentStatus {
+    PENDING // Initial status
+    SETTLEMENT // Payment successful and settled
+    CAPTURE // For credit card, funds captured
+    DENY // Payment denied
+    CANCEL // Payment cancelled
+    EXPIRE // Payment expired
+    FAILURE // Payment failed
+    REFUND // Fully refunded
+    PARTIAL_REFUND // Partially refunded
+    CHARGEBACK // Full chargeback
+    PARTIAL_CHARGEBACK // Partial chargeback
+    AUTHORIZE // For credit card, funds authorized
 }
 
 enum EventStatus {
