@@ -16,6 +16,7 @@ import { auth } from "~/server/auth";
 import { db } from "~/server/db";
 
 import { AdminEventService } from "./services/admin/event.service";
+import { OrderService } from "./services/order.service";
 
 /**
  * 1. CONTEXT
@@ -120,8 +121,10 @@ const abilityMiddleware = t.middleware(async ({ next, ctx }) => {
 
 const serviceMiddleware = t.middleware(async ({ next, ctx }) => {
   const adminEventService = new AdminEventService(ctx);
+  const orderService = new OrderService(ctx);
   const service = {
     adminEventService,
+    orderService,
   };
 
   return next({ ctx: { ...ctx, service } });
